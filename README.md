@@ -40,6 +40,12 @@ Optional configuration: copy `.env.example` to `.env` (Windows PowerShell: `Copy
 | `TRUST_PROXY` | `false` | Trust `X-Forwarded-For` for client IPs (see caveat below) |
 | `NPM_CACHE_TTL_MS` | `300000` | npm registry metadata cache TTL in milliseconds |
 | `NPM_CACHE_MAX_ENTRIES` | `500` | Maximum cached npm packages |
+| `LOG_LEVEL` | `info` | Minimum log level, one of `debug`, `info`, `warn`, `error` |
+| `REQUEST_TIMEOUT_MS` | `10000` | Per-request timeout in milliseconds |
+| `MAX_RESPONSE_BYTES` | `5242880` | Maximum accepted response size in bytes |
+| `LOOKUP_CONCURRENCY` | `6` | Number of concurrent npm lookups |
+
+All tunable limits are validated at startup; the server exits with an error on invalid values.
 
 ### Rate limiting
 
@@ -64,15 +70,16 @@ npm run check   # JavaScript syntax checks
 - Optional `ref` parameter to scan a specific branch, tag or commit instead of the default branch.
 - Automatic workspace traversal: when the root `package.json` declares `workspaces`, their manifests are discovered and scanned too.
 - Direct runtime and optional dependencies; development dependencies opt in.
-- Six concurrent npm lookups, individual lookup failure reporting, request timeouts, response size limits.
+- Configurable concurrent npm lookups, individual lookup failure reporting, request timeouts and response size limits.
 - Bounded in-memory npm registry cache with configurable TTL and size.
 - Per-client rate limiting on scan endpoints with `429` and `Retry-After`.
+- Structured JSON request logs (request id, method, path, status, duration) with tokens and `Authorization` headers redacted.
 - Publisher-reported GitHub repository mapping, latest version, license, and npm maintainer usernames in the JSON report.
 - Optional installed-version resolution from the repository's `package-lock.json`; the report marks the installed version as `unknown` when no lockfile is found.
 - Opt-in transitive dependency scanning with configurable depth and total-package caps; packages are deduplicated and depth is recorded in the report.
 - Structured reason codes for unsupported dependency specifications.
 - Actionable errors when the GitHub API rate limit is hit.
-- Node HTTP server, automated tests, Dockerfile, MIT license, contribution and security guidance.
+- Node HTTP server, automated tests, Dockerfile, MIT license, contribution and security guidance. Report vulnerabilities through the private channel described in `SECURITY.md`.
 - `GET /healthz` liveness endpoint: returns `200` with a small JSON body, makes no upstream calls and is exempt from rate limiting. Suitable for a Docker `HEALTHCHECK` or Kubernetes liveness/readiness probes; see `docs/DEPLOYMENT.md`.
 
 ## Scanning a specific ref
